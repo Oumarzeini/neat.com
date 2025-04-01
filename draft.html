@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Note Taker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center;
+        }
+        input, textarea {
+            width: 80%;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .note-item {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 5px auto;
+            width: 80%;
+            text-align: left;
+            background: #f9f9f9;
+            position: relative;
+        }
+        .delete-btn {
+            background: red;
+            color: white;
+            border: none;
+            padding: 5px;
+            cursor: pointer;
+            position: absolute;
+            top: 5px;
+            right: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>📝 Multi-Note Taker</h2>
+    <input type="text" id="noteTitle" placeholder="Note Title">
+    <textarea id="noteContent" placeholder="Write your note..."></textarea>
+    <br>
+    <button onclick="saveNote()">Save Note</button>
+    <button onclick="clearAllNotes()">Clear All Notes</button>
+
+    <h3>Saved Notes:</h3>
+    <div id="notesList"></div>
+
+    <script>
+        function loadNotes() {
+            let notes = JSON.parse(localStorage.getItem("notes")) || [];
+            let notesList = document.getElementById("notesList");
+            notesList.innerHTML = ""; // Clear previous list
+
+            notes.forEach((note, index) => {
+                let noteItem = document.createElement("div");
+                noteItem.className = "note-item";
+                noteItem.innerHTML = `
+                    <strong>${note.title}</strong>
+                    <p>${note.content}</p>
+                    <button class="delete-btn" onclick="deleteNote(${index})">X</button>
+                `;
+                notesList.appendChild(noteItem);
+            });
+        }
+
+        function saveNote() {
+            let title = document.getElementById("noteTitle").value.trim();
+            let content = document.getElementById("noteContent").value.trim();
+
+            if (title === "" || content === "") {
+                alert("Please enter both title and note content.");
+                return;
+            }
+
+            let notes = JSON.parse(localStorage.getItem("notes")) || [];
+            notes.push({ title, content });
+            localStorage.setItem("notes", JSON.stringify(notes));
+
+            document.getElementById("noteTitle").value = "";
+            document.getElementById("noteContent").value = "";
+
+            loadNotes(); // Refresh the notes list
+        }
+
+        function deleteNote(index) {
+            let notes = JSON.parse(localStorage.getItem("notes")) || [];
+            notes.splice(index, 1);
+            localStorage.setItem("notes", JSON.stringify(notes));
+            loadNotes(); // Refresh the notes list
+        }
+
+        function clearAllNotes() {
+            if (confirm("Are you sure you want to delete all notes?")) {
+                localStorage.removeItem("notes");
+                loadNotes();
+            }
+        }
+
+        window.onload = loadNotes; // Load notes when the page loads
+    </script>
+
+</body>
+</html>
